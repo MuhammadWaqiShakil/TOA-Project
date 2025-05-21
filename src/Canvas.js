@@ -89,11 +89,10 @@ const DfaNfaVisualizer = () => {
         if (!graph) return;
 
         const label = `q${stateCounter}`;
-        // Calculate position to spread circles evenly in a grid with 5 per row
         const circlesPerRow = 5;
         const horizontalSpacing = 140;
         const verticalSpacing = 140;
-        const startX = 120;  // Increased to center the circles
+        const startX = 120; 
         const startY = 100;
 
         const x = startX + (stateCounter % circlesPerRow) * horizontalSpacing;
@@ -262,127 +261,127 @@ const DfaNfaVisualizer = () => {
         link.click();
     };
 
-    const loadMachine = (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
+    // const loadMachine = (event) => {
+    //     const file = event.target.files[0];
+    //     if (!file) return;
     
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = JSON.parse(e.target.result);
-            graph.clear();
-            setStates([]);
-            setTransitions([]);
-            setStateCounter(0);
-            setAcceptingStates(new Set());
+    //     const reader = new FileReader();
+    //     reader.onload = (e) => {
+    //         const data = JSON.parse(e.target.result);
+    //         graph.clear();
+    //         setStates([]);
+    //         setTransitions([]);
+    //         setStateCounter(0);
+    //         setAcceptingStates(new Set());
     
-            const stateMap = {};
-            const newAcceptingStates = new Set();
+    //         const stateMap = {};
+    //         const newAcceptingStates = new Set();
 
-            setStartingState(data.startState);
-            setMachineType(data.machineType);
-            data.states.forEach(state => {
-                const circle = new shapes.standard.Circle({
-                    id: state.id  // Set the ID explicitly
-                }); 
-                circle.position(state.x, state.y);
-                circle.resize(60, 60);
-                circle.attr({
-                    body: { 
-                        fill: state.isAccepting ? '#90EE90' : data.startState === circle.id ? '#FFE4E1':'#ccccff', 
-                        strokeWidth: 3 
-                    },
-                    label: { text: state.label, fill: 'black', fontWeight: 'bold' },
-                });
-                circle.addTo(graph);
+    //         setStartingState(data.startState);
+    //         setMachineType(data.machineType);
+    //         data.states.forEach(state => {
+    //             const circle = new shapes.standard.Circle({
+    //                 id: state.id  // Set the ID explicitly
+    //             }); 
+    //             circle.position(state.x, state.y);
+    //             circle.resize(60, 60);
+    //             circle.attr({
+    //                 body: { 
+    //                     fill: state.isAccepting ? '#90EE90' : data.startState === circle.id ? '#FFE4E1':'#ccccff', 
+    //                     strokeWidth: 3 
+    //                 },
+    //                 label: { text: state.label, fill: 'black', fontWeight: 'bold' },
+    //             });
+    //             circle.addTo(graph);
                 
-                stateMap[state.id] = circle.id;
-                if (state.isAccepting) {
-                    newAcceptingStates.add(circle.id);
-                }
+    //             stateMap[state.id] = circle.id;
+    //             if (state.isAccepting) {
+    //                 newAcceptingStates.add(circle.id);
+    //             }
                 
-                setStates(prevStates => [
-                    ...prevStates,
-                    { id: circle.id, label: state.label, node: circle }
-                ]);
-                setStateCounter(prevCounter => prevCounter + 1);
-            });
+    //             setStates(prevStates => [
+    //                 ...prevStates,
+    //                 { id: circle.id, label: state.label, node: circle }
+    //             ]);
+    //             setStateCounter(prevCounter => prevCounter + 1);
+    //         });
     
-            setAcceptingStates(newAcceptingStates);
+    //         setAcceptingStates(newAcceptingStates);
     
-            data.transitions.forEach(transition => {
-                const sourceStateId = stateMap[transition.sourceId];
-                const targetStateId = stateMap[transition.targetId];
+    //         data.transitions.forEach(transition => {
+    //             const sourceStateId = stateMap[transition.sourceId];
+    //             const targetStateId = stateMap[transition.targetId];
     
-                if (sourceStateId && targetStateId) {
-                    const existingLink = graph.getLinks().find(link => {
-                        const sourceId = link.getSourceElement().id;
-                        const targetId = link.getTargetElement().id;
-                        return sourceId === sourceStateId && targetId === targetStateId;
-                    });
+    //             if (sourceStateId && targetStateId) {
+    //                 const existingLink = graph.getLinks().find(link => {
+    //                     const sourceId = link.getSourceElement().id;
+    //                     const targetId = link.getTargetElement().id;
+    //                     return sourceId === sourceStateId && targetId === targetStateId;
+    //                 });
     
-                    if (existingLink) {
-                        const existingLabel = existingLink.labels()[0].attrs.text.text;
-                        existingLink.labels([{
-                            attrs: { text: { text: `${existingLabel}, ${transition.label}`, fontSize: 14, fontWeight: 'bold' } },
-                            position: 0.5,
-                        }]);
-                    } else {
-                        const link = new shapes.standard.Link();
-                        link.source({ id: sourceStateId });
-                        link.target({ id: targetStateId });
+    //                 if (existingLink) {
+    //                     const existingLabel = existingLink.labels()[0].attrs.text.text;
+    //                     existingLink.labels([{
+    //                         attrs: { text: { text: `${existingLabel}, ${transition.label}`, fontSize: 14, fontWeight: 'bold' } },
+    //                         position: 0.5,
+    //                     }]);
+    //                 } else {
+    //                     const link = new shapes.standard.Link();
+    //                     link.source({ id: sourceStateId });
+    //                     link.target({ id: targetStateId });
     
-                        if (sourceStateId === targetStateId) {
-                            link.router({
-                                name: 'manhattan',
-                                args: {
-                                    padding: 20,
-                                    startDirections: ['top'],
-                                    endDirections: ['bottom'],
-                                },
-                            });
-                            link.connector('rounded');
-                        } else {
-                            link.router({
-                                name: 'manhattan',
-                                args: {
-                                    padding: 20,
-                                    startDirections: ['top', 'left', 'bottom', 'right'],
-                                    endDirections: ['top', 'left', 'bottom', 'right'],
-                                },
-                            });
-                        }
+    //                     if (sourceStateId === targetStateId) {
+    //                         link.router({
+    //                             name: 'manhattan',
+    //                             args: {
+    //                                 padding: 20,
+    //                                 startDirections: ['top'],
+    //                                 endDirections: ['bottom'],
+    //                             },
+    //                         });
+    //                         link.connector('rounded');
+    //                     } else {
+    //                         link.router({
+    //                             name: 'manhattan',
+    //                             args: {
+    //                                 padding: 20,
+    //                                 startDirections: ['top', 'left', 'bottom', 'right'],
+    //                                 endDirections: ['top', 'left', 'bottom', 'right'],
+    //                             },
+    //                         });
+    //                     }
     
-                        link.attr({
-                            line: {
-                                stroke: 'black',
-                                strokeWidth: 2,
-                                targetMarker: { type: 'path', d: 'M 10 -5 0 0 10 5 Z', fill: 'black' },
-                            },
-                        });
+    //                     link.attr({
+    //                         line: {
+    //                             stroke: 'black',
+    //                             strokeWidth: 2,
+    //                             targetMarker: { type: 'path', d: 'M 10 -5 0 0 10 5 Z', fill: 'black' },
+    //                         },
+    //                     });
     
-                        link.labels([{
-                            attrs: { text: { text: transition.label, fontSize: 14, fontWeight: 'bold' } },
-                            position: 0.5,
-                        }]);
+    //                     link.labels([{
+    //                         attrs: { text: { text: transition.label, fontSize: 14, fontWeight: 'bold' } },
+    //                         position: 0.5,
+    //                     }]);
     
-                        link.addTo(graph);
-                    }
+    //                     link.addTo(graph);
+    //                 }
     
-                    setTransitions(prevTransitions => [
-                        ...prevTransitions,
-                        { 
-                            sourceId: transition.sourceId, 
-                            targetId: transition.targetId, 
-                            label: transition.label, 
-                            source: transition.source, 
-                            target: transition.target 
-                        }
-                    ]);
-                }
-            });
-        };
-        reader.readAsText(file);
-    };
+    //                 setTransitions(prevTransitions => [
+    //                     ...prevTransitions,
+    //                     { 
+    //                         sourceId: transition.sourceId, 
+    //                         targetId: transition.targetId, 
+    //                         label: transition.label, 
+    //                         source: transition.source, 
+    //                         target: transition.target 
+    //                     }
+    //                 ]);
+    //             }
+    //         });
+    //     };
+    //     reader.readAsText(file);
+    // };
     // Function to test a given string input
     const testInput = () => {
         // Ensure states and transitions are properly defined
@@ -440,118 +439,7 @@ const DfaNfaVisualizer = () => {
         });
         highlightPath(path);
     };
-    const testNFAInput = () => {
-        // Ensure states and transitions are properly defined
-        if (!states || !transitions) {
-            setTestResult({
-                accepted: false,
-                message: 'Error: States, transitions, or input string not properly defined',
-                path: []
-            });
-            return;
-        }
-    
-        // Helper function to perform DFS from a given state with remaining input
-        const dfs = (currentState, remainingInput, currentPath) => {
-            // If we've processed all input, explore epsilon transitions and check accepting states
-            if (remainingInput.length === 0) {
-                // Check if the current state is accepting
-                const stateObj = states.find(s => s.label === currentState);
-                if (stateObj && acceptingStates.has(stateObj.id)) {
-                    return {
-                        accepted: true,
-                        path: currentPath
-                    };
-                }
-        
-                // Explore epsilon transitions
-                const epsilonTransitions = transitions.filter(
-                    t => t.source === currentState && t.label === "ε"
-                );
-        
-                for (const transition of epsilonTransitions) {
-                    const result = dfs(
-                        transition.target,
-                        remainingInput, // Keep input unchanged for epsilon transitions
-                        [...currentPath, transition.target]
-                    );
-        
-                    // If an accepting path is found, return it
-                    if (result) {
-                        return result;
-                    }
-                }
-        
-                // If no accepting path is found, return null
-                return null;
-            }
-        
-            // Process the next symbol in the input
-            const symbol = remainingInput[0];
-            const restInput = remainingInput.slice(1);
-        
-            // Find all possible transitions for the current symbol or epsilon
-            const possibleTransitions = transitions.filter(
-                t => t.source === currentState && (t.label === symbol || t.label === "ε")
-            );
-        
-            // Try each possible transition
-            for (const transition of possibleTransitions) {
-                const result = dfs(
-                    transition.target,
-                    //if the transition label is epsilon dont splice the remaining input
-                    transition.label === "ε" ? remainingInput : restInput,
-                    [...currentPath, transition.target]
-                );
-        
-                // If an accepting path is found, return it
-                if (result) {
-                    return result;
-                }
-            }
-        
-            // If no accepting path is found, return null
-            return null;
-        };
-        
-        
-    
-        // Start the search from the initial state
-        const startStateLabel = states.find(s => s.id === startState)?.label;
-        
-        if (!startStateLabel) {
-            setTestResult({
-                accepted: false,
-                message: 'Error: Start state not properly defined',
-                path: []
-            });
-            return;
-        }
-    
-        // Convert input string to array of characters
-        const inputArray = Array.from(testString);
-        const result = dfs(startStateLabel, inputArray, [startStateLabel]);
-    
-        if (result) {
-            setTestResult({
-                accepted: true,
-                message: 'Accepted',
-                path: result.path
-            });
-        } else {
-            setTestResult({
-                accepted: false,
-                message: 'Rejected: No accepting path found',
-                path: []
-            });
-        }
-    
-        // Highlight the accepting path if one was found
-        if (result && result.path) {
-            highlightPath(result.path);
-        }
-    };
-
+  
     // Function to highlight the path in the visualization
     const highlightPath = (path) => {
         if (!graph || !states || path.length === 0) return;
@@ -619,150 +507,7 @@ const DfaNfaVisualizer = () => {
             link.attr('line/strokeWidth', 2);
         });
     };
-  // Handle file uploads for equivalence testing
-  const handleDfaFileUpload = (fileNumber, event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const dfa = JSON.parse(e.target.result);
-          if (fileNumber === 1) {
-            setDfa1(dfa);
-          } else {
-            setDfa2(dfa);
-          }
-        } catch (error) {
-          alert('Error reading file: ' + error.message);
-        }
-      };
-      reader.readAsText(file);
-    }
-  };
-    // Function to check DFA equivalence
-    const checkDfaEquivalence = () => {
-        if (!dfa1 || !dfa2) {
-          alert('Please upload both DFA files first');
-          return;
-        }
     
-        // Basic validation that both are DFAs
-        if (dfa1.machineType !== 'DFA' || dfa2.machineType !== 'DFA') {
-          setEquivalenceResult({
-            equivalent: false,
-            message: 'Both machines must be DFAs'
-          });
-          return;
-        }
-        const newMachine = {
-            machineType: "DFA",
-            startState: null,
-            states: [],
-            transitions: []
-        }
-    
-        let alphabet = new Set();
-        dfa1.transitions.forEach(t => alphabet.add(t.label));
-    
-        // Stack to keep track of state pairs we need to process
-        let statesToProcess = [];
-    
-        // Start with initial states
-        let currState1 = dfa1.states.find(s => s.id === dfa1.startState);
-        let currState2 = dfa2.states.find(s => s.id === dfa2.startState);
-        const currStatePair = {
-            id: `${currState1.id},${currState2.id}`,
-            label: `${currState1.label},${currState2.label}`,
-            isAccepting:
-              (currState1.isAccepting && !currState2.isAccepting) ||
-              (!currState1.isAccepting && currState2.isAccepting)
-        };
-        
-        // Initialize machine with start state
-        newMachine.startState = currStatePair;
-        newMachine.states.push(currStatePair);
-        statesToProcess.push([currState1, currState2]);
-    
-        // Process states until no new ones are found (lazy construction)
-        while (statesToProcess.length > 0) {
-            [currState1, currState2] = statesToProcess.pop();
-            const currentPair = newMachine.states.find(s => s.id === `${currState1.id},${currState2.id}`);
-    
-            alphabet.forEach(letter => {
-                // Find transitions for current letter
-                const currTrans1 = dfa1.transitions.find(t => t.sourceId === currState1.id && t.label === letter);
-                const currTrans2 = dfa2.transitions.find(t => t.sourceId === currState2.id && t.label === letter);
-    
-                // Find next states
-                const nextState1 = dfa1.states.find(state => state.id === currTrans1.targetId);
-                const nextState2 = dfa2.states.find(state => state.id === currTrans2.targetId);
-    
-                // Create next state pair
-                const nextStatePair = {
-                    id: `${nextState1.id},${nextState2.id}`,
-                    label: `${nextState1.label},${nextState2.label}`,
-                    isAccepting:
-                        (nextState1.isAccepting && !nextState2.isAccepting) ||
-                        (!nextState1.isAccepting && nextState2.isAccepting)
-                };
-    
-                // Add transition to new machine
-                const newTransition = {
-                    sourceId: currentPair.id,
-                    targetId: nextStatePair.id,
-                    label: letter
-                };
-    
-                // If this is a new state, add it for processing
-                if (!newMachine.states.some(s => s.id === nextStatePair.id)) {
-                    newMachine.states.push(nextStatePair);
-                    statesToProcess.push([nextState1, nextState2]);
-                    console.log(`Found new state: ${nextStatePair.label}`);
-                }
-                newMachine.transitions.push(newTransition);
-    
-                console.log(`Processing state ${currentPair.label} with letter ${letter} -> ${nextStatePair.label}`);
-            });
-        }
-    
-        console.log("Final Machine:", newMachine);
-        
-        // BFS to check for accepting states
-        let queue = [newMachine.startState];
-        let visited = new Set([newMachine.startState.id]);
-
-        while (queue.length > 0) {
-            const currentState = queue.shift();
-            
-            // Check if current state is accepting
-            if (currentState.isAccepting) {
-                setEquivalenceResult({
-                    equivalent: false,
-                    message: `DFAs are not equivalent - Found distinguishing state: ${currentState.label}`
-                });
-                return;
-            }
-
-            // Get all transitions from current state
-            const stateTransitions = newMachine.transitions.filter(t => t.sourceId === currentState.id);
-            
-            // Add unvisited target states to queue
-            stateTransitions.forEach(transition => {
-                const targetState = newMachine.states.find(s => s.id === transition.targetId);
-                if (!visited.has(targetState.id)) {
-                    visited.add(targetState.id);
-                    queue.push(targetState);
-                }
-            });
-        }
-
-            // If no accepting states were found, the DFAs are equivalent
-            setEquivalenceResult({
-                equivalent: true,
-                message: 'Analysis complete. The DFAs are equivalent.'
-            });
-    };
-
     const clearMachine = () => {
         // Clear the graph
         graph.clear();
@@ -793,21 +538,21 @@ const DfaNfaVisualizer = () => {
                         Select Machine Type
                     </option>
                     <option value="DFA">DFA</option>
-                    <option value="NFA">NFA</option>
+                    <option value="NFA" disabled>NFA</option>
                 </select>
 
                     <button onClick={addState} className="button">Add State</button>
                     <button onClick={startAddingTransition} disabled={isAddingTransition} className="button">Add Transition</button>
                     <button onClick={saveMachine} className="button">Save Machine</button>
-                    <input type="file" onChange={loadMachine} accept=".json" style={{ display: 'none' }} id="fileInput"/>
-                    <button onClick={() => document.getElementById('fileInput').click()} className="button">
+                    {/* <input type="file" onChange={loadMachine} accept=".json" style={{ display: 'none' }} id="fileInput"/> */}
+                    <button onClick={() => document.getElementById('fileInput').click()} disabled className="button">
                         Load Machine
                     </button>
                     <button onClick={clearMachine} className="button">Clear Machine</button>
-                    {machineType === "NFA" &&
+                    {/* {machineType === "NFA" &&
                         (
                             <h4 style={{color : 'black'}}>Epsilon symbol for NFA (copy and paste) ε</h4>
-                    )}
+                    )} */}
                     <div style={{ marginTop: '10px' }}>
                     <h4 style={{ color: 'black' }}>Set Starting State</h4>
                     <select
@@ -820,85 +565,7 @@ const DfaNfaVisualizer = () => {
                         ))}
                     </select>
                 </div>
-                    <div className="test-container">
-                        <h4>Test String (Starting from {states.find(s => s.id === startState)?.label})</h4>
-                        
-                        {/* String input and test button */}
-                        <div style={{ marginTop: '5px' }}>
-                            <input
-                                type="text"
-                                value={testString}
-                                onChange={(e) => {
-                                    //on change of input reset path and test result
-                                    resetHighlighting();
-                                    setTestString(e.target.value);
-                                    setTestResult(null); 
-                                }}
-                                placeholder="Enter test string"
-                            />
-                            <button 
-                                onClick={machineType === "DFA" ? testInput : testNFAInput}
-                                //disabled={}
-                                className="button"
-                            >
-                                Test String
-                            </button>
-                        </div>
-                        <div className="test-container">
-                            <h4>DFA Equivalence Test(Upload 2 DFA JSON files)</h4>
-                            <div>
-                                <input
-                                    type="file"
-                                    onChange={(e) => handleDfaFileUpload(1, e)}
-                                    accept=".json"
-                                    style={{color:'black'}}
-                                />
-                                <input
-                                    type="file"
-                                    onChange={(e) => handleDfaFileUpload(2, e)}
-                                    accept=".json"
-                                    style={{color:'black'}}
-                                />
-                                <button 
-                                    onClick={checkDfaEquivalence}
-                                    className="button"
-                                    disabled={!dfa1 || !dfa2}
-                                >
-                                    Check Equivalence
-                                </button>
-                            </div>
-                            
-                            {equivalenceResult && (
-                                <div style={{
-                                    marginTop: '10px',
-                                    padding: '5px',
-                                    backgroundColor: equivalenceResult.equivalent ? 'green' : 'red',
-                                    borderRadius: '4px'
-                                }}>
-                                    <strong>Result:</strong> {equivalenceResult.message}
-                                </div>
-                            )}
-                        </div>
-    
-                            {/* Result display */}
-                            {testResult && (
-                                <div style={{
-                                    marginTop: '10px',
-                                    padding: '5px',
-                                    backgroundColor: testResult.accepted ? 'green' : 'red',
-                                    borderRadius: '4px'
-                                }}>
-                                    <strong>Result:</strong> {testResult.message}
-                                    {testResult.path && (
-                                        <div>
-                                            <strong>Path:</strong> {testResult.path.join(' → ')}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                    </div>
-                    
-                        {isAddingTransition && (
+                {isAddingTransition && (
                             <div style={{ marginTop: '10px' }}>
                                 <h4>Adding Transition</h4>
                                 <select onChange={(e) => setTransitionSource(e.target.value)} value={transitionSource || ''}>
@@ -932,10 +599,54 @@ const DfaNfaVisualizer = () => {
                                 </button>
                             </div>
                         )}
+                    <div className="test-container">
+                        <h4>Test String (Starting from {states.find(s => s.id === startState)?.label})</h4>
+                        
+                        {/* String input and test button */}
+                        <div style={{ marginTop: '5px' }}>
+                            <input
+                                type="text"
+                                value={testString}
+                                onChange={(e) => {
+                                    //on change of input reset path and test result
+                                    resetHighlighting();
+                                    setTestString(e.target.value);
+                                    setTestResult(null); 
+                                }}
+                                placeholder="Enter test string"
+                            />
+                            <button 
+                                onClick={machineType === "DFA" ? testInput : null}
+                                //disabled={}
+                                className="button"
+                            >
+                                Test String
+                            </button>
+                        </div>
+    
+                            {/* Result display */}
+                            {testResult && (
+                                <div style={{
+                                    marginTop: '10px',
+                                    padding: '5px',
+                                    backgroundColor: testResult.accepted ? 'green' : 'red',
+                                    borderRadius: '4px'
+                                }}>
+                                    <strong>Result:</strong> {testResult.message}
+                                    {testResult.path && (
+                                        <div>
+                                            <strong>Path:</strong> {testResult.path.join(' → ')}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                    </div>
+                    
+                        
                     </div>
 
                     <div className="diagram-container">
-                        <h3 className="diagram-title">DFA/NFA State Diagram</h3>
+                        <h3 className="diagram-title">DFA State Diagram</h3>
                         <div ref={paperRef} style={{ width: '600px', height: '600px' }}></div>
                     </div>
                 </div>
