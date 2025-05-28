@@ -4,7 +4,7 @@ import { dia, shapes } from 'jointjs';
 const DfaNfaVisualizer = () => {
     const paperRef = useRef(null);
     const [graph, setGraph] = useState(null);
-    const [stateCounter, setStateCounter] = useState(0);
+    const [stateCounter, setStateCounter] = useState(0); 
     const [states, setStates] = useState([]);
     const [transitions, setTransitions] = useState([]);
     const [isAddingTransition, setIsAddingTransition] = useState(false);
@@ -16,9 +16,7 @@ const DfaNfaVisualizer = () => {
     const [testResult, setTestResult] = useState(null);
     const [startState, setStartState] = useState(null);
     const [machineType, setMachineType] = useState('');
-    const [dfa1, setDfa1] = useState(null);
-    const [dfa2, setDfa2] = useState(null);
-    const [equivalenceResult, setEquivalenceResult] = useState(null);
+    
 
     useEffect(() => {
         const newGraph = new dia.Graph({}, { cellNamespace: shapes });
@@ -62,6 +60,7 @@ const DfaNfaVisualizer = () => {
     
         setStartState(stateId);
     };
+
 
     const toggleAcceptingState = (stateId) => {
         setAcceptingStates(prev => {
@@ -117,6 +116,7 @@ const DfaNfaVisualizer = () => {
                 refY: '50%'
             }
         });
+
         circle.addTo(graph);
 
         setStates([...states, { id: circle.id, label, node: circle }]);
@@ -234,155 +234,9 @@ const DfaNfaVisualizer = () => {
         setIsAddingTransition(false);
     };
 
-    const saveMachine = () => {
-        const machineData = {
-            machineType,
-            startState,
-            states: states.map(state => ({
-                label: state.label,
-                id: state.id,
-                x: state.node.position().x,
-                y: state.node.position().y,
-                isAccepting: acceptingStates.has(state.id)
-            })),
-            transitions: transitions.map(transition => ({
-                sourceId: transition.sourceId,
-                targetId: transition.targetId,
-                label: transition.label,
-                source: transition.source,
-                target: transition.target
-            }))
-        };
-    
-        const blob = new Blob([JSON.stringify(machineData, null, 2)], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'dfa_nfa_machine.json';
-        link.click();
-    };
 
-    // const loadMachine = (event) => {
-    //     const file = event.target.files[0];
-    //     if (!file) return;
+   
     
-    //     const reader = new FileReader();
-    //     reader.onload = (e) => {
-    //         const data = JSON.parse(e.target.result);
-    //         graph.clear();
-    //         setStates([]);
-    //         setTransitions([]);
-    //         setStateCounter(0);
-    //         setAcceptingStates(new Set());
-    
-    //         const stateMap = {};
-    //         const newAcceptingStates = new Set();
-
-    //         setStartingState(data.startState);
-    //         setMachineType(data.machineType);
-    //         data.states.forEach(state => {
-    //             const circle = new shapes.standard.Circle({
-    //                 id: state.id  // Set the ID explicitly
-    //             }); 
-    //             circle.position(state.x, state.y);
-    //             circle.resize(60, 60);
-    //             circle.attr({
-    //                 body: { 
-    //                     fill: state.isAccepting ? '#90EE90' : data.startState === circle.id ? '#FFE4E1':'#ccccff', 
-    //                     strokeWidth: 3 
-    //                 },
-    //                 label: { text: state.label, fill: 'black', fontWeight: 'bold' },
-    //             });
-    //             circle.addTo(graph);
-                
-    //             stateMap[state.id] = circle.id;
-    //             if (state.isAccepting) {
-    //                 newAcceptingStates.add(circle.id);
-    //             }
-                
-    //             setStates(prevStates => [
-    //                 ...prevStates,
-    //                 { id: circle.id, label: state.label, node: circle }
-    //             ]);
-    //             setStateCounter(prevCounter => prevCounter + 1);
-    //         });
-    
-    //         setAcceptingStates(newAcceptingStates);
-    
-    //         data.transitions.forEach(transition => {
-    //             const sourceStateId = stateMap[transition.sourceId];
-    //             const targetStateId = stateMap[transition.targetId];
-    
-    //             if (sourceStateId && targetStateId) {
-    //                 const existingLink = graph.getLinks().find(link => {
-    //                     const sourceId = link.getSourceElement().id;
-    //                     const targetId = link.getTargetElement().id;
-    //                     return sourceId === sourceStateId && targetId === targetStateId;
-    //                 });
-    
-    //                 if (existingLink) {
-    //                     const existingLabel = existingLink.labels()[0].attrs.text.text;
-    //                     existingLink.labels([{
-    //                         attrs: { text: { text: `${existingLabel}, ${transition.label}`, fontSize: 14, fontWeight: 'bold' } },
-    //                         position: 0.5,
-    //                     }]);
-    //                 } else {
-    //                     const link = new shapes.standard.Link();
-    //                     link.source({ id: sourceStateId });
-    //                     link.target({ id: targetStateId });
-    
-    //                     if (sourceStateId === targetStateId) {
-    //                         link.router({
-    //                             name: 'manhattan',
-    //                             args: {
-    //                                 padding: 20,
-    //                                 startDirections: ['top'],
-    //                                 endDirections: ['bottom'],
-    //                             },
-    //                         });
-    //                         link.connector('rounded');
-    //                     } else {
-    //                         link.router({
-    //                             name: 'manhattan',
-    //                             args: {
-    //                                 padding: 20,
-    //                                 startDirections: ['top', 'left', 'bottom', 'right'],
-    //                                 endDirections: ['top', 'left', 'bottom', 'right'],
-    //                             },
-    //                         });
-    //                     }
-    
-    //                     link.attr({
-    //                         line: {
-    //                             stroke: 'black',
-    //                             strokeWidth: 2,
-    //                             targetMarker: { type: 'path', d: 'M 10 -5 0 0 10 5 Z', fill: 'black' },
-    //                         },
-    //                     });
-    
-    //                     link.labels([{
-    //                         attrs: { text: { text: transition.label, fontSize: 14, fontWeight: 'bold' } },
-    //                         position: 0.5,
-    //                     }]);
-    
-    //                     link.addTo(graph);
-    //                 }
-    
-    //                 setTransitions(prevTransitions => [
-    //                     ...prevTransitions,
-    //                     { 
-    //                         sourceId: transition.sourceId, 
-    //                         targetId: transition.targetId, 
-    //                         label: transition.label, 
-    //                         source: transition.source, 
-    //                         target: transition.target 
-    //                     }
-    //                 ]);
-    //             }
-    //         });
-    //     };
-    //     reader.readAsText(file);
-    // };
-    // Function to test a given string input
     const testInput = () => {
         // Ensure states and transitions are properly defined
         if (!states || !transitions) {
@@ -520,9 +374,6 @@ const DfaNfaVisualizer = () => {
         setStartState(null);
         setTestString('');
         setTestResult(null);
-        setDfa1(null);
-        setDfa2(null);
-        setEquivalenceResult(null);
         setMachineType('');
     };
 
@@ -543,16 +394,7 @@ const DfaNfaVisualizer = () => {
 
                     <button onClick={addState} className="button">Add State</button>
                     <button onClick={startAddingTransition} disabled={isAddingTransition} className="button">Add Transition</button>
-                    <button onClick={saveMachine} className="button">Save Machine</button>
-                    {/* <input type="file" onChange={loadMachine} accept=".json" style={{ display: 'none' }} id="fileInput"/> */}
-                    <button onClick={() => document.getElementById('fileInput').click()} disabled className="button">
-                        Load Machine
-                    </button>
                     <button onClick={clearMachine} className="button">Clear Machine</button>
-                    {/* {machineType === "NFA" &&
-                        (
-                            <h4 style={{color : 'black'}}>Epsilon symbol for NFA (copy and paste) ε</h4>
-                    )} */}
                     <div style={{ marginTop: '10px' }}>
                     <h4 style={{ color: 'black' }}>Set Starting State</h4>
                     <select
@@ -566,6 +408,7 @@ const DfaNfaVisualizer = () => {
                     </select>
                 </div>
                 {isAddingTransition && (
+                    // add transition button
                             <div style={{ marginTop: '10px' }}>
                                 <h4>Adding Transition</h4>
                                 <select onChange={(e) => setTransitionSource(e.target.value)} value={transitionSource || ''}>
